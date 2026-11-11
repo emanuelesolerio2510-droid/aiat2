@@ -1,0 +1,1479 @@
+/* ==========================================================================
+   Aia Taumastica — Wunderkammer 2.0
+   Un palcoscenico buio, in attesa. Una luce per sezione.
+   ========================================================================== */
+
+:root {
+  --black: #000000;
+  --white: #ffffff;
+  --dim: rgba(255, 255, 255, 0.6);
+  --line: rgba(255, 255, 255, 0.7);
+  --warm: 255, 245, 226; /* bianco appena caldo, per le luci (r, g, b) */
+
+  /* Font di sistema: nessuna richiesta esterna (GDPR).
+     Serif ad alto contrasto per i titoli, come nel mondo tipografico di Cividati. */
+  --font: system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  --serif: "Bodoni MT", "Bodoni 72", Didot, "Hoefler Text", "Playfair Display", Georgia, "Times New Roman", serif;
+
+  --perspective: 1400px;
+  --floor-y: 260px;           /* quota del palco rispetto all'occhio */
+  --copy-w: min(90vw, 820px); /* larghezza dei testi illuminati */
+  --copy-y: -50px;            /* altezza (centro) dei testi */
+
+  /* Platea: 50 × 50 posti */
+  --platea-pitch: 56px;
+  --platea-size: calc(var(--platea-pitch) * 50);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--black);
+  color-scheme: dark;
+  overscroll-behavior: none;
+
+  /* Niente scroll nativo: si passa da una luce all'altra con ruota, tocco o
+     tastiera (vedi main.js). Il pizzico con due dita resta permesso. */
+  height: 100%;
+  overflow: hidden;
+  touch-action: pinch-zoom;
+}
+
+body {
+  height: 100%;
+  overflow: hidden;
+  touch-action: pinch-zoom;
+  margin: 0;
+  background-color: #000;
+  color: #fff;
+  font-family: var(--font);
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+a { color: inherit; text-decoration: none; }
+
+:focus-visible {
+  outline: 1px solid var(--white);
+  outline-offset: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   Wordmark — ricreato in testo (la "T" di TAUMASTICA diventa un "+")
+   -------------------------------------------------------------------------- */
+.logo-img,
+.hero-logo {
+  display: block;
+  height: auto;
+}
+
+/* --------------------------------------------------------------------------
+   Header
+   -------------------------------------------------------------------------- */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem 2rem;
+  padding: 1.4rem clamp(1rem, 4vw, 3rem) 2.4rem;
+
+  background: linear-gradient(#000 35%, transparent);
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.logo { display: block; }
+.logo-img { width: 150px; }
+
+/* PRENOTA: l'unica voce piena, ben in vista */
+.site-nav .nav-cta {
+  padding: 0.75em 1.5em;
+  color: var(--black);
+  background: var(--white);
+  border: 1px solid var(--white);
+  opacity: 1;
+  font-weight: 500;
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+.site-nav .nav-cta:hover,
+.site-nav .nav-cta:focus-visible,
+.site-nav .nav-cta[aria-current="true"] {
+  color: var(--white);
+  background: transparent;
+  box-shadow: 0 0 22px rgba(var(--warm), 0.35);
+}
+.site-nav a.nav-cta { border-bottom-color: var(--white); }
+
+.menu-toggle { display: none; }
+
+/* Puntini: a che punto del teatro sei */
+.dots {
+  position: fixed;
+  top: 50%;
+  right: clamp(0.6rem, 1.6vw, 1.6rem);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  transform: translateY(-50%);
+}
+.dots button {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.dots button::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  transition: background-color 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease;
+}
+.dots button[aria-current="true"]::before {
+  background: var(--white);
+  transform: scale(1.5);
+  box-shadow: 0 0 12px rgba(var(--warm), 0.7);
+}
+.dots span {
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  margin-right: 0.4rem;
+  transform: translateY(-50%);
+  font-size: 0.62rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.dots button:hover span,
+.dots button:focus-visible span { opacity: 0.85; }
+
+/* Prenota fisso in basso (solo telefono) */
+.cta-fixed {
+  display: none;
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem clamp(1rem, 2.4vw, 2.2rem);
+}
+.site-nav a {
+  padding-bottom: 4px;
+  border-bottom: 1px solid transparent;
+  opacity: 0.6;
+  transition: opacity 0.4s ease, border-color 0.4s ease;
+}
+.site-nav a:hover,
+.site-nav a:focus-visible,
+.site-nav a[aria-current="true"] {
+  opacity: 1;
+}
+.site-nav a[aria-current="true"] {
+  border-color: var(--white);
+}
+
+/* --------------------------------------------------------------------------
+   Scena
+   -------------------------------------------------------------------------- */
+#scene {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* Camera 3D: prospettiva fissa */
+#viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  perspective: var(--perspective);
+  perspective-origin: 50% 50%;
+}
+
+/* Stage = la telecamera. GSAP lo sposta (x, y, z) e, alla fine, lo ruota. */
+#stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  will-change: transform; /* la telecamera si muove: resta su un suo livello */
+}
+
+/* Coordinate di ogni luce sul palco (x, z). Beam, pool e testo la condividono. */
+[data-zone="teatro"]     { --x:    0px; --z: -2000px; }
+[data-zone="spettacoli"] { --x: -900px; --z: -1500px; }
+[data-zone="repertorio"] { --x:    0px; --z: -2600px; }
+[data-zone="formazione"] { --x:  900px; --z: -1500px; }
+[data-zone="contatti"]   { --x:    0px; --z: -1000px; }
+
+/* Fondale + pavimento: il chiarore di un teatro acceso in attesa.
+   Due gradienti a schermo (niente piani 3D giganti: più leggero sul telefono). */
+#backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 46% 26% at 50% 60%, rgba(var(--warm), 0.07), transparent 70%),
+    linear-gradient(to bottom, #010101 0%, #020202 52%, #080808 62%, #0f0f0f 100%);
+}
+
+/* Luce fantasma: la lampadina lasciata accesa sul palco vuoto */
+.ghost-light {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 220px;
+  margin: 40px 0 0 -1px;
+  transform: translateZ(-1400px);
+  background: linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.04));
+}
+.ghost-light::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff7e8;
+  box-shadow:
+    0 0 24px 10px rgba(var(--warm), 0.42),
+    0 0 120px 50px rgba(var(--warm), 0.09);
+  animation: respiro 7s ease-in-out infinite;
+}
+@keyframes respiro {
+  0%, 100% { opacity: 0.8; }
+  50%      { opacity: 1; }
+}
+
+/* Cono di luce: trapezio morbido dall'alto fino al pavimento */
+.beam {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 560px;
+  height: 1500px;
+  margin: -750px 0 0 -280px;
+  transform: translate3d(var(--x), calc(var(--floor-y) - 750px), calc(var(--z) - 20px));
+  /* Il cono è un'immagine già pronta: niente maschere né clip-path da ridisegnare */
+  background: url("beam.png") center / 100% 100% no-repeat;
+  will-change: transform, opacity;
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Macchia di luce sul pavimento */
+.pool {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 800px;
+  height: 800px;
+  margin: -400px 0 0 -400px;
+  transform: translate3d(var(--x), calc(var(--floor-y) - 6px), calc(var(--z) - 20px)) rotateX(90deg);
+  background: radial-gradient(circle, rgba(var(--warm), 0.34), rgba(var(--warm), 0.09) 45%, transparent 70%);
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   Testi illuminati. Stanno in piedi sul palco, nel punto della loro luce;
+   quando la telecamera arriva (z' = 0) hanno dimensione naturale.
+   visibility:hidden quando spenti: non intercettano i click.
+   -------------------------------------------------------------------------- */
+.copy {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--copy-w);
+  margin-left: calc(var(--copy-w) / -2);
+  padding: 0 1rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  text-align: center;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 28px #000, 0 0 8px #000;
+
+  transform: translate3d(var(--x), var(--copy-y), var(--z)) translateY(-50%);
+  /* Il testo viene disegnato una volta sola a dimensione naturale e poi solo spostato:
+     niente ridisegni durante lo zoom. */
+  will-change: transform, opacity;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.copy a,
+.copy button,
+.copy input,
+.copy label {
+  pointer-events: auto;
+}
+
+.copy h2,
+.copy h3,
+.copy p {
+  margin: 0;
+  text-wrap: balance;
+}
+
+.eyebrow {
+  font-size: 0.7rem;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--dim);
+  padding-left: 0.5em;
+}
+.copy h2 {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 4.6vw, 3.4rem);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  line-height: 1.1;
+}
+.copy h3 {
+  font-size: 1.05rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+}
+
+.lead {
+  max-width: 34em;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  opacity: 0.88;
+}
+.note {
+  font-size: 0.8rem;
+  line-height: 1.8;
+  opacity: 0.6;
+}
+
+/* Cifre: tre numeri, senza box */
+.cifre {
+  display: flex;
+  gap: clamp(1.4rem, 5vw, 3.5rem);
+  margin: 0.2rem 0;
+  padding: 0;
+  list-style: none;
+}
+.cifre li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.cifre b {
+  font-family: var(--serif);
+  font-size: 1.9rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+.cifre span {
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+/* Spettacoli: una fila di locandine. Ognuna ha il suo fascio di luce;
+   gli spazi vuoti restano al buio finché non vengono riempiti. */
+.locandine {
+  display: flex;
+  justify-content: center;
+  gap: clamp(0.6rem, 2vw, 1.6rem);
+  width: 100%;
+  margin-top: 0.4rem;
+}
+.locandina {
+  position: relative;
+  isolation: isolate;
+  flex: 1 1 0;
+  max-width: 270px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1.2rem 0.4rem;
+}
+.locandina-data {
+  font-size: 0.75rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.locandina h3 {
+  font-family: var(--serif);
+  font-size: clamp(1.5rem, 2.8vw, 2.2rem);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  padding-left: 0.14em;
+}
+.locandina img {
+  display: block;
+  width: 100%;
+  max-height: 150px;
+  object-fit: cover;
+  filter: grayscale(0.25) contrast(1.05);
+}
+
+/* Il fascio sopra ogni spettacolo e la sua macchia di luce */
+.locandina:not(.locandina--vuota)::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -330px;
+  left: 50%;
+  width: 340px;
+  height: 520px;
+  transform: translateX(-50%);
+  background: url("beam.png") center / 100% 100% no-repeat;
+  opacity: 0.75;
+}
+.locandina:not(.locandina--vuota)::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  bottom: -36px;
+  left: 50%;
+  width: 360px;
+  height: 70px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, rgba(var(--warm), 0.2), transparent 68%);
+}
+
+/* Spazio pronto: al buio, appena accennato */
+.locandina--vuota {
+  justify-content: center;
+  min-height: 170px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+.locandina--vuota p {
+  font-size: 0.6rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.28);
+}
+
+/* Formazione */
+.corsi {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2rem clamp(1.5rem, 5vw, 4rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.corsi li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.corsi p {
+  font-size: 0.85rem;
+  opacity: 0.6;
+}
+
+/* Contatti */
+.copy address {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  font-style: normal;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+.copy address a {
+  padding-bottom: 3px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+  transition: border-color 0.4s ease;
+}
+.copy address a:hover,
+.copy address a:focus-visible {
+  border-color: var(--white);
+}
+
+/* Pulsanti testuali "ghost" */
+.ghost {
+  display: inline-block;
+  padding: 1.1em 2.4em;
+  font: 300 0.8rem/1 var(--font);
+  letter-spacing: 0.3em;
+  color: var(--white);
+  background: transparent;
+  border: 1px solid var(--white);
+  border-radius: 0;
+  cursor: pointer;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+.ghost:hover,
+.ghost:focus-visible {
+  background: var(--white);
+  color: var(--black);
+  outline: none;
+}
+
+/* --------------------------------------------------------------------------
+   Polvere, tende, apertura
+   -------------------------------------------------------------------------- */
+#dust {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* I posti della platea: un canvas sotto la scena 3D (sotto il form, sopra il fondale) */
+#seats {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Il form si inclina in 3D con la scena: resta su un suo livello, disegnato una volta sola */
+.prenota-form { will-change: transform, opacity; }
+
+/* Segno a terra: la croce del nastro di scena (come il "+" del logo),
+   sotto ogni luce. Appena accennata, si accende con la luce. */
+.spike {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 150px;
+  height: 150px;
+  margin: -75px 0 0 -75px;
+  transform: translate3d(var(--x), calc(var(--floor-y) - 9px), calc(var(--z) - 20px)) rotateX(90deg);
+  background:
+    linear-gradient(#fff, #fff) 50% 50% / 2px 60% no-repeat,
+    linear-gradient(#fff, #fff) 50% 50% / 60% 2px no-repeat;
+  opacity: 0.22;
+}
+
+/* Il faro e gli oggetti nel buio (vedi main.js) */
+.follow-spot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 440px;
+  height: 440px;
+  margin: -220px 0 0 -220px;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle, rgba(var(--warm), 0.17), rgba(var(--warm), 0.05) 45%, transparent 70%);
+}
+.secrets {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+.secret {
+  position: absolute;
+  width: clamp(34px, 4.4vw, 58px);
+  height: auto;
+  aspect-ratio: 1;
+  margin: calc(clamp(34px, 4.4vw, 58px) / -2) 0 0 calc(clamp(34px, 4.4vw, 58px) / -2);
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+}
+.spot-hint {
+  margin: 1.2rem 0 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.spot-hint.is-on { opacity: 1; }
+
+/* Repertorio: una teca per ogni produzione */
+#repertorio { --copy-w: min(92vw, 900px); }
+.teche {
+  display: grid;
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+  margin: 0.2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.teca {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  font: 300 0.72rem/1 var(--serif);
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.55);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 0;
+  cursor: pointer;
+  transition: color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+}
+.teca::before { /* il secondo vetro della teca */
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+.teca:hover,
+.teca:focus-visible,
+.teca.is-active {
+  color: var(--white);
+  border-color: var(--white);
+  background: rgba(var(--warm), 0.07);
+  box-shadow: 0 0 20px rgba(var(--warm), 0.28);
+  outline: none;
+}
+.teca-dettaglio {
+  min-height: 5.6em; /* l'altezza non salta al cambio di teca */
+  max-width: 34em;
+}
+.teca-dettaglio h3 {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  letter-spacing: 0.06em;
+  text-transform: none;
+}
+.teca-dettaglio p {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  line-height: 1.7;
+  opacity: 0.65;
+}
+
+/* Le foto del repertorio: miniatura nella teca, zoom al passaggio, lightbox al click */
+.teche-wrap { position: relative; width: 100%; }
+.teca { overflow: hidden; }
+.teca img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+/* Due miniature sovrapposte: bianco e nero (già pronta) e colore, che appare all'occorrenza */
+.teca img.col { opacity: 0; transition: opacity 0.35s ease; }
+.teca::before { z-index: 1; }
+.teca > span {
+  position: relative;
+  z-index: 2;
+  text-shadow: 0 0 8px #000, 0 0 3px #000;
+}
+.teca:hover img.col,
+.teca:focus-visible img.col,
+.teca.is-active img.col {
+  opacity: 0.9;
+}
+
+.teca-zoom {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  left: 0;
+  z-index: 5;
+  margin: 0;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 50px rgba(var(--warm), 0.22), 0 24px 60px #000;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(12px) scale(0.9);
+  transform-origin: 50% 100%;
+  transition: opacity 0.25s ease, transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1), left 0.25s ease;
+}
+.teca-zoom.is-on { opacity: 1; visibility: visible; transform: none; }
+.teca-zoom img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  animation: ingrandisci 9s ease-out forwards; /* lo zoom continua lentamente */
+}
+@keyframes ingrandisci { from { transform: scale(1); } to { transform: scale(1.08); } }
+@media (hover: none) { .teca-zoom { display: none; } }
+
+/* Lightbox: foto grande a tutto schermo */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--white);
+  background: var(--black);
+  font-family: var(--font);
+  font-weight: 300;
+}
+.lightbox[open] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  padding: 3.8rem 1rem max(1rem, env(safe-area-inset-bottom));
+}
+.lightbox::backdrop { background: var(--black); }
+.lb-close {
+  position: absolute;
+  top: max(1rem, env(safe-area-inset-top));
+  right: 1rem;
+  padding: 0.9em 1.4em;
+  font-size: 0.7rem;
+}
+.lb-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  min-height: 0;
+  max-width: 100%;
+  margin: 0;
+}
+.lb-img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: min(94vw, 1100px);
+  max-height: 60vh;
+  max-height: 60dvh;
+  object-fit: contain;
+  box-shadow: 0 0 70px rgba(var(--warm), 0.12);
+}
+.lb-img[hidden] { display: none; }
+.lb-figure figcaption {
+  max-width: 34em;
+  padding: 0 0.5rem;
+  text-align: center;
+}
+.lb-num {
+  margin: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.4em;
+  color: var(--dim);
+}
+.lightbox h2 {
+  margin: 0.4rem 0 0.5rem;
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+.lb-nota {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--dim);
+}
+.lb-nav { display: flex; align-items: center; gap: 1.4rem; }
+.lb-arrow {
+  width: 52px;
+  height: 52px;
+  font: 300 1.3rem/1 var(--font);
+  color: var(--white);
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 0;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+.lb-arrow:hover,
+.lb-arrow:focus-visible { background: var(--white); color: var(--black); outline: none; }
+.lb-count {
+  min-width: 5.5em;
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-align: center;
+  color: var(--dim);
+}
+
+/* Posti richiesti: un puntino acceso per ognuno */
+.posti-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 9px;
+  margin-top: 0.55rem;
+}
+.posti-dots i {
+  width: 7px;
+  height: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.posti-dots i.on {
+  background: var(--white);
+  border-color: var(--white);
+  box-shadow: 0 0 10px rgba(var(--warm), 0.85);
+}
+
+/* Il segreto della luce fantasma: attivo solo sull'apertura */
+.ghost-hit {
+  position: fixed;
+  left: 50%;
+  top: calc(50% + 20px);
+  z-index: 45;
+  display: none;
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.ghost-hit.is-on { display: block; }
+
+/* Iscrizione agli aggiornamenti (in Contatti) */
+.iscrizione {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  width: min(100%, 380px);
+  margin-top: 0.3rem;
+}
+.iscrizione-testo {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1rem;
+  opacity: 0.85;
+}
+.iscrizione-riga {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.8rem;
+  width: 100%;
+}
+.iscrizione input[type="email"] {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0;
+  font: 300 1rem/1.4 var(--font);
+  letter-spacing: 0.06em;
+  color: var(--white);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  outline: none;
+  -webkit-appearance: none;
+          appearance: none;
+}
+.iscrizione input[type="email"]:focus { border-bottom-color: var(--white); }
+.iscrizione input[type="email"]::placeholder { color: rgba(255, 255, 255, 0.4); }
+.iscrizione button[type="submit"] {
+  padding: 0.75em 0.9em;
+  font: 300 0.68rem/1 var(--font);
+  letter-spacing: 0.25em;
+  color: var(--white);
+  background: transparent;
+  border: 1px solid var(--white);
+  border-radius: 0;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+.iscrizione button[type="submit"]:hover,
+.iscrizione button[type="submit"]:focus-visible {
+  color: var(--black);
+  background: var(--white);
+  outline: none;
+}
+.consent--mini { font-size: 0.62rem; }
+.iscrizione .form-status { min-height: 1em; }
+
+/* Senza JavaScript */
+.noscript {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  text-align: center;
+  font-size: 0.9rem;
+  line-height: 1.8;
+  background: #000;
+}
+.noscript p { margin: 0; }
+
+/* Sipario: due pannelli che si chiudono e si riaprono tra una luce e l'altra */
+.sipario {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  overflow: hidden;
+}
+.sipario i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50.6%;
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(255, 255, 255, 0.05) 0 1px,
+      rgba(0, 0, 0, 0.45) 1px 14px,
+      rgba(255, 255, 255, 0.02) 14px 28px),
+    linear-gradient(90deg, #0a0a0a, #151515 50%, #080808);
+  will-change: transform;
+}
+.sipario-l { left: 0;  transform: translateX(-101%); box-shadow: 8px 0 40px #000; }
+.sipario-r { right: 0; transform: translateX(101%);  box-shadow: -8px 0 40px #000; }
+
+/* Tende ai lati: grigio-nero con pieghe appena percettibili */
+.curtain {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: clamp(40px, 14vw, 240px);
+  z-index: 20;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(255, 255, 255, 0.05) 0 1px,
+      rgba(0, 0, 0, 0.4) 1px 10px,
+      rgba(255, 255, 255, 0.018) 10px 21px),
+    linear-gradient(90deg, #080808, #121212 55%, #050505);
+}
+.curtain--l {
+  left: 0;
+  clip-path: polygon(0 0, 100% 0, 93% 28%, 82% 60%, 66% 100%, 0 100%);
+}
+.curtain--r {
+  right: 0;
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(255, 255, 255, 0.018) 0 11px,
+      rgba(0, 0, 0, 0.4) 11px 20px,
+      rgba(255, 255, 255, 0.05) 20px 21px),
+    linear-gradient(270deg, #080808, #121212 55%, #050505);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 34% 100%, 18% 60%, 7% 28%);
+}
+
+/* Apertura: il logo mentre il teatro è in attesa */
+.hero {
+  position: absolute;
+  top: 24%;
+  left: 0;
+  width: 100%;
+  z-index: 30;
+  text-align: center;
+  pointer-events: none;
+}
+.hero h1 { margin: 0; }
+.hero-logo {
+  width: min(78vw, 1000px);
+  margin: 0 auto;
+}
+.hero p {
+  margin: 1.6rem 0 0;
+  font-size: clamp(0.6rem, 1.1vw, 0.78rem);
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  padding-left: 0.45em;
+  color: var(--dim);
+}
+
+.scroll-hint {
+  position: fixed;
+  bottom: 1.8rem;
+  left: 0;
+  width: 100%;
+  margin: 0;
+  z-index: 50;
+  text-align: center;
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   Platea + form. Niente opacity sul contenitore (appiattirebbe il 3D):
+   la luce la gestiscono griglia e form.
+   -------------------------------------------------------------------------- */
+#platea {
+  position: absolute;
+  top: calc(var(--platea-size) / -2);
+  left: calc(var(--platea-size) / -2);
+  width: var(--platea-size);
+  height: var(--platea-size);
+
+  display: grid;
+  place-items: center;
+  transform-style: preserve-3d;
+}
+
+.platea-grid {
+  position: absolute;
+  inset: 0;
+
+  background-image: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.3) 0 1.5px,
+    rgba(255, 255, 255, 0.08) 2px,
+    transparent 5px
+  );
+  background-size: var(--platea-pitch) var(--platea-pitch);
+
+  opacity: 0;
+  visibility: hidden;
+}
+/* I bordi si dissolvono nel nero con una vignettatura (più leggera di una maschera) */
+.platea-grid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(closest-side, transparent 20%, #000 100%);
+}
+
+/* Form "dark e invisibile": solo testo e bordi inferiori */
+.prenota-form {
+  position: relative;
+  width: min(86vw, 420px);
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+
+  letter-spacing: 0.1em;
+
+  opacity: 0;
+  visibility: hidden;
+}
+.prenota-form h2 {
+  margin: 0 0 0.4rem;
+  font-family: var(--serif);
+  font-size: 1.8rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-align: center;
+  padding-left: 0.2em;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.field label,
+.consent {
+  font-size: 0.68rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.prenota-form input[type="text"],
+.prenota-form input[type="email"],
+.prenota-form input[type="number"],
+.prenota-form select {
+  width: 100%;
+  padding: 0.55rem 0;
+  font: 300 1rem/1.4 var(--font);
+  letter-spacing: 0.08em;
+  color: var(--white);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  outline: none;
+  -webkit-appearance: none;
+          appearance: none;
+  transition: border-color 0.3s ease;
+}
+.prenota-form input:focus,
+.prenota-form select:focus {
+  border-bottom-color: var(--white);
+}
+.prenota-form input:-webkit-autofill {
+  -webkit-text-fill-color: #fff;
+  -webkit-box-shadow: 0 0 0 1000px #000 inset;
+  caret-color: #fff;
+}
+.prenota-form input[type="number"] {
+  -moz-appearance: textfield;
+          appearance: textfield;
+}
+.prenota-form input[type="number"]::-webkit-outer-spin-button,
+.prenota-form input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.prenota-form select {
+  padding-right: 1.4rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none' stroke='white' stroke-width='1'%3E%3Cpath d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.2rem center;
+}
+.prenota-form option {
+  background: #000;
+  color: #fff;
+}
+
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  text-transform: none;
+  letter-spacing: 0.05em;
+  line-height: 1.5;
+}
+.consent input {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin: 2px 0 0;
+  accent-color: #fff;
+}
+
+.prenota-form .ghost {
+  align-self: center;
+  margin-top: 0.6rem;
+}
+.form-status {
+  min-height: 1.2em;
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--dim);
+}
+
+/* Link testuale all'informativa */
+.link-privacy {
+  align-self: center;
+  padding: 0 0 3px;
+  font: 300 0.68rem/1.4 var(--font);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim);
+  background: none;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+.link-privacy:hover,
+.link-privacy:focus-visible {
+  color: var(--white);
+  border-color: var(--white);
+}
+
+/* Honeypot anti-spam (Netlify) */
+.hp { display: none; }
+
+/* Dopo l'invio: il form lascia il posto al ringraziamento */
+.prenota-form.is-sent > :not(.form-thanks) { display: none; }
+.form-thanks {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 3rem 0;
+  text-align: center;
+  outline: none;
+}
+.form-thanks[hidden] { display: none; }
+.form-thanks h2 { margin: 0; }
+.form-thanks p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.9;
+  color: var(--dim);
+}
+
+/* --------------------------------------------------------------------------
+   Informativa privacy — a tutto schermo
+   -------------------------------------------------------------------------- */
+.privacy {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 2rem;
+  border: 0;
+  color: var(--white);
+  background: var(--black);
+  font-family: var(--font);
+  font-weight: 300;
+  letter-spacing: 0.08em;
+}
+.privacy[open] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1.4rem;
+  padding: max(2rem, env(safe-area-inset-top)) 1.2rem max(1.2rem, env(safe-area-inset-bottom));
+  text-align: center;
+}
+/* Il testo lungo scorre; titolo e [ CHIUDI ] restano al loro posto */
+.privacy-testo {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: min(100%, 40rem);
+  padding-right: 0.8rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  touch-action: pan-y; /* qui il testo scorre col dito */
+  text-align: left;
+  outline: none;
+}
+.privacy-testo p {
+  max-width: none;
+  margin: 0 0 1rem;
+  font-size: 0.88rem;
+  line-height: 1.85;
+  text-align: left;
+}
+.privacy-testo h3 {
+  margin: 1.8rem 0 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--white);
+}
+.privacy-testo strong { font-weight: 400; color: var(--white); }
+.privacy-testo a { color: var(--white); border-bottom: 1px solid rgba(255, 255, 255, 0.4); }
+.privacy-data { margin-top: 2rem !important; font-size: 0.75rem !important; opacity: 0.6; }
+.privacy .ghost { flex: none; }
+.privacy::backdrop { background: var(--black); }
+.privacy h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.8rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+}
+.privacy p {
+  max-width: 34em;
+  margin: 0;
+  line-height: 1.9;
+  color: var(--dim);
+}
+html.modal-open { overflow: hidden; }
+
+/* --------------------------------------------------------------------------
+   Schermi stretti
+   -------------------------------------------------------------------------- */
+@media (max-width: 760px) {
+  .hero { top: 26%; }
+  .hero-logo { width: 84vw; }
+
+  .copy { gap: 1.1rem; }
+  .copy h2 { font-size: 1.9rem; }
+  .lead { font-size: 0.95rem; line-height: 1.7; }
+  .cifre b { font-size: 1.5rem; }
+  .cifre span { letter-spacing: 0.2em; }
+  .corsi { grid-template-columns: 1fr; gap: 1.2rem; }
+  .copy address { font-size: 0.95rem; }
+  .ghost { padding: 1em 1.6em; letter-spacing: 0.22em; }
+
+  /* Il form scende sotto l'header e respira */
+  .prenota-form {
+    margin-top: 4.5rem;
+    gap: 1rem;
+  }
+  .prenota-form h2 { font-size: 1.4rem; margin-bottom: 0; }
+  .prenota-form input[type="text"],
+  .prenota-form input[type="email"],
+  .prenota-form input[type="number"],
+  .prenota-form select { font-size: 16px; } /* niente zoom automatico su iOS */
+}
+
+/* Telefono: header compatto, menu a tutto schermo, Prenota sempre a portata di pollice */
+@media (max-width: 760px) {
+  .site-header {
+    flex-wrap: nowrap;
+    padding: max(0.9rem, env(safe-area-inset-top)) 1.1rem 1.6rem;
+  }
+  .logo-img { width: 118px; }
+
+  .menu-toggle {
+    display: block;
+    padding: 0.5em 0;
+    font: 300 0.72rem/1 var(--font);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--white);
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .site-nav {
+    position: fixed;
+    inset: 0;
+    z-index: -1; /* sotto logo e pulsante Menu, sopra la scena */
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.6rem;
+    background: #000;
+  }
+  .site-header.menu-open .site-nav { display: flex; }
+  .site-nav a {
+    font-family: var(--serif);
+    font-size: 1.7rem;
+    letter-spacing: 0.12em;
+    text-transform: none;
+    opacity: 0.85;
+  }
+  .site-nav a[aria-current="true"] { border-color: transparent; opacity: 1; }
+  .site-nav .nav-cta {
+    margin-top: 1rem;
+    font-family: var(--font);
+    font-size: 0.8rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+
+  .dots { right: 0; gap: 0; }
+  .dots button { width: 26px; height: 26px; }
+  .dots span { display: none; }
+
+  .cta-fixed {
+    position: fixed;
+    left: 50%;
+    bottom: max(1.1rem, env(safe-area-inset-bottom));
+    z-index: 70;
+    display: block;
+    padding: 1.05em 2.6em;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--black);
+    background: var(--white);
+    box-shadow: 0 0 28px rgba(var(--warm), 0.3);
+    transform: translate(-50%, 160%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.6s ease, opacity 0.6s ease;
+  }
+  .cta-fixed.is-on {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Locandine in colonna: gli spazi vuoti non servono sul telefono */
+  .locandine { flex-direction: column; align-items: center; }
+  .locandina { max-width: 320px; width: 100%; }
+  .locandina--vuota { display: none; }
+  .locandina:not(.locandina--vuota)::before { top: -260px; height: 440px; }
+
+  .scroll-hint { bottom: 2.2rem; }
+  :root { --platea-size: calc(var(--platea-pitch) * 30); } /* meno pixel da disegnare */
+}
+
+/* Telefono: repertorio e dettagli */
+@media (max-width: 760px) {
+  .lightbox h2 { font-size: 1.3rem; }
+  .lb-img { max-height: 54vh; max-height: 54dvh; }
+  .lb-arrow { width: 56px; height: 56px; }
+  #repertorio { --copy-w: 94vw; }
+  .teche { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+  .teca { font-size: 0.68rem; }
+  .teca-dettaglio { min-height: 6.4em; padding: 0 0.4rem; }
+  .teca-dettaglio h3 { font-size: 1.1rem; }
+  .secret { width: 40px; margin: -20px 0 0 -20px; }
+  .follow-spot { width: 320px; height: 320px; margin: -160px 0 0 -160px; }
+  .spike { width: 110px; height: 110px; margin: -55px 0 0 -55px; }
+}
+
+/* Schermi larghi ma non enormi: il menu si stringe per far posto a tutte le voci */
+@media (max-width: 1100px) and (min-width: 761px) {
+  .site-header { letter-spacing: 0.15em; }
+  .site-nav { gap: 0.6rem 1.1rem; }
+}
+
+/* Schermi bassi (telefoni in orizzontale, laptop piccoli) */
+@media (max-height: 700px) {
+  .prenota-form { gap: 0.8rem; }
+  .prenota-form h2 { font-size: 1.3rem; }
+}
+
+/* Qualità leggera: la attiva da sola main.js se il dispositivo non regge il movimento */
+.lite .copy { text-shadow: none; }
+.lite .ghost-light::before {
+  animation: none;
+  box-shadow: 0 0 18px 8px rgba(var(--warm), 0.35);
+}
+.lite .curtain { clip-path: none; }
+.lite .teca-zoom { box-shadow: none; }
+.lite .pool { background: radial-gradient(circle, rgba(var(--warm), 0.3), transparent 62%); }
+
+@media (prefers-reduced-motion: reduce) {
+  .site-nav a, .ghost, .link-privacy { transition: none; }
+  .ghost-light::before { animation: none; }
+}

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>Aia Taumastica — Compagnia teatrale dal 1998</title>
+  <meta name="description" content="Aia Taumastica, compagnia teatrale dal 1998: uno spazio a Cusano Milanino dove il teatro nasce, si prova e incontra il pubblico. Spettacoli, corsi e laboratori, prenotazioni.">
+  <meta property="og:title" content="Aia Taumastica — Compagnia teatrale dal 1998">
+  <meta property="og:description" content="L'arte della meraviglia: uno spazio a Cusano Milanino dove il teatro nasce, si prova e incontra il pubblico.">
+  <meta property="og:type" content="website">
+  <!-- PRIMA DI PUBBLICARE: sostituire con l'indirizzo completo, es. https://www.tuodominio.it/og.png -->
+  <meta property="og:image" content="og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="preload" as="image" href="logo.png">
+
+  <!-- Dati strutturati per i motori di ricerca -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TheaterGroup",
+    "name": "Aia Taumastica",
+    "description": "Compagnia teatrale dal 1998: uno spazio a Cusano Milanino dove il teatro nasce, si prova e incontra il pubblico.",
+    "foundingDate": "1998",
+    "founder": { "@type": "Person", "name": "Massimiliano Cividati" },
+    "email": "aiataumastica@gmail.com",
+    "telephone": "+39 02 8907 1170",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Viale Luigi Buffoli, 17 bis",
+      "postalCode": "20095",
+      "addressLocality": "Cusano Milanino",
+      "addressRegion": "MI",
+      "addressCountry": "IT"
+    }
+  }
+  </script>
+
+  <!-- Nessun font esterno (privacy/GDPR): stack di sistema, vedi style.css -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <noscript>
+    <div class="noscript">
+      <p>Aia Taumastica · Compagnia teatrale dal 1998</p>
+      <p>Per vedere il sito attiva JavaScript.<br>Scrivici a <a href="mailto:aiataumastica@gmail.com">aiataumastica@gmail.com</a> o chiama il <a href="tel:+390289071170">02 8907 1170</a>.</p>
+    </div>
+  </noscript>
+
+  <!-- Navigazione fissa: ogni voce porta alla sua luce sul palco -->
+  <header class="site-header">
+    <a class="logo" href="#inizio" data-go="inizio" aria-label="Aia Taumastica — torna all'inizio">
+      <img class="logo-img" src="logo.png" alt="" width="1689" height="199">
+    </a>
+
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="menu">Menu</button>
+
+    <nav class="site-nav" id="menu" aria-label="Principale">
+      <a href="#teatro"     data-go="teatro">Il Teatro</a>
+      <a href="#spettacoli" data-go="spettacoli">Spettacoli</a>
+      <a href="#repertorio" data-go="repertorio">Repertorio</a>
+      <a href="#formazione" data-go="formazione">Formazione</a>
+      <a href="#contatti"   data-go="contatti">Contatti</a>
+      <a href="#platea"     data-go="platea" class="nav-cta">Prenota</a>
+    </nav>
+  </header>
+
+  <!-- Dove sei: un puntino per ogni luce -->
+  <nav class="dots" aria-label="Sezioni">
+    <button type="button" data-go="inizio"     aria-label="Inizio"><span>Inizio</span></button>
+    <button type="button" data-go="teatro"     aria-label="Il Teatro"><span>Il Teatro</span></button>
+    <button type="button" data-go="spettacoli" aria-label="Spettacoli"><span>Spettacoli</span></button>
+    <button type="button" data-go="repertorio" aria-label="Repertorio"><span>Repertorio</span></button>
+    <button type="button" data-go="formazione" aria-label="Formazione"><span>Formazione</span></button>
+    <button type="button" data-go="contatti"   aria-label="Contatti"><span>Contatti</span></button>
+    <button type="button" data-go="platea"     aria-label="Prenota"><span>Prenota</span></button>
+  </nav>
+
+  <!-- Prenota sempre a portata di pollice (solo telefono) -->
+  <a class="cta-fixed" href="#platea" data-go="platea">Prenota</a>
+
+  <!-- La scena: tutto ciò che si vede "dentro il teatro" -->
+  <div id="scene">
+
+    <!-- Fondale e pavimento: due gradienti, niente piani giganti (leggero anche sul telefono) -->
+    <div id="backdrop" aria-hidden="true"></div>
+
+    <!-- I posti della platea, disegnati a ogni fotogramma (vedi main.js: drawSeats) -->
+    <canvas id="seats" aria-hidden="true"></canvas>
+
+    <!-- Camera 3D: prospettiva fissa; lo stage (la telecamera) si muove al suo interno -->
+    <div id="viewport">
+      <div id="stage">
+
+        <!-- Luce fantasma: la lampadina lasciata accesa sul palco vuoto -->
+        <div class="ghost-light" aria-hidden="true"></div>
+
+        <!-- 1 · IL TEATRO: luce al centro, in fondo -->
+        <div class="beam" data-zone="teatro" aria-hidden="true"></div>
+        <div class="pool" data-zone="teatro" aria-hidden="true"></div>
+        <div class="spike" data-zone="teatro" aria-hidden="true"></div>
+        <section class="copy" id="teatro" data-zone="teatro" aria-labelledby="h-teatro">
+          <p class="eyebrow">Il Teatro</p>
+          <h2 id="h-teatro">Aia Taumastica</h2>
+          <p class="lead">L'arte della meraviglia: uno spazio a Cusano Milanino dove il teatro nasce, si prova e incontra il pubblico.</p>
+          <ul class="cifre">
+            <li><b>22</b><span>Produzioni</span></li>
+            <li><b>25.000</b><span>Spettatori</span></li>
+            <li><b>1.000+</b><span>Allievi</span></li>
+          </ul>
+          <p class="note">Compagnia fondata nel 1998 · direzione artistica di Massimiliano Cividati</p>
+        </section>
+
+        <!-- 2 · SPETTACOLI: luce a sinistra -->
+        <div class="beam" data-zone="spettacoli" aria-hidden="true"></div>
+        <div class="pool" data-zone="spettacoli" aria-hidden="true"></div>
+        <div class="spike" data-zone="spettacoli" aria-hidden="true"></div>
+        <section class="copy" id="spettacoli" data-zone="spettacoli" aria-labelledby="h-spettacoli">
+          <p class="eyebrow">Spettacoli</p>
+          <h2 id="h-spettacoli">In Cartellone</h2>
+
+          <!--
+            COME AGGIUNGERE UNO SPETTACOLO
+            1. Duplica un <article class="locandina"> qui sotto e sostituiscilo a uno dei riquadri
+               "locandina--vuota" (o aggiungilo in fila: la griglia si adatta).
+            2. Cambia data-spettacolo con "Titolo - data": diventa da solo una voce
+               del menu "Scegli Spettacolo" nel form di prenotazione.
+            3. Facoltativo: una locandina come <img src="locandine/titolo.jpg" alt="Locandina di ...">
+               come primo figlio dell'article.
+            Ogni spettacolo con data-spettacolo è illuminato da un suo fascio di luce.
+          -->
+          <div class="locandine">
+            <article class="locandina" data-spettacolo="Il Nulla - 21 Maggio">
+              <img src="foto/13.jpg" alt="Il Nulla — The Void: un momento dello spettacolo" width="1000" height="666" decoding="async">
+              <p class="locandina-data">21 Maggio</p>
+              <h3>Il Nulla</h3>
+              <p class="note">Regia di Massimiliano Cividati. Ingresso gratuito.</p>
+              <button type="button" class="ghost" data-go="platea" data-show="Il Nulla - 21 Maggio">[ SCOPRI ]</button>
+            </article>
+
+            <!-- Spazi pronti: restano al buio finché non vengono riempiti -->
+            <article class="locandina locandina--vuota" aria-hidden="true"><p>Prossimamente</p></article>
+            <article class="locandina locandina--vuota" aria-hidden="true"><p>Prossimamente</p></article>
+          </div>
+        </section>
+
+        <!-- 3 · REPERTORIO: la camera delle meraviglie. Una teca per ogni produzione. -->
+        <div class="beam" data-zone="repertorio" aria-hidden="true"></div>
+        <div class="pool" data-zone="repertorio" aria-hidden="true"></div>
+        <div class="spike" data-zone="repertorio" aria-hidden="true"></div>
+        <section class="copy" id="repertorio" data-zone="repertorio" aria-labelledby="h-repertorio">
+          <p class="eyebrow">Repertorio</p>
+          <h2 id="h-repertorio">Ventidue produzioni</h2>
+
+          <!--
+            Per aggiungere una produzione: duplica un <li>, cambia numero, data-titolo e data-nota,
+            e metti la foto in foto/NN.jpg (grande, max 1200px) e foto/thumb/NN.jpg (miniatura, ~280px).
+            Senza foto: aggiungi l'attributo data-senza-foto al bottone.
+          -->
+          <div class="teche-wrap">
+          <ol class="teche">
+            <li><button type="button" class="teca" data-titolo="Nijinsky versus Amleto" data-nota="Premio ETI «Sergio Torresani» come miglior progetto teatrale giovane; Teatro Litta, Teatri '90">01</button></li>
+            <li><button type="button" class="teca" data-titolo="Calibania ovvero De amore extremo" data-nota="CRT Salone, Opera Prima di Rovigo, Teatro Libero di Milano">02</button></li>
+            <li><button type="button" class="teca" data-titolo="Donne al sepolcro" data-nota="Da de Ghelderode; ETI–CRT, «Le vie dei canti», Giubileo 2000">03</button></li>
+            <li><button type="button" class="teca" data-titolo="Tito Andronico" data-nota="Shakespeare; prima nazionale al Teatro Verdi di Milano, 2000">04</button></li>
+            <li><button type="button" class="teca" data-titolo="Hansel e Gretel" data-nota="Di Paolo Mazzarelli, finalista al Premio Riccione; con il CRT, 2002">05</button></li>
+            <li><button type="button" class="teca" data-titolo="La Muta" data-nota="Da Landolfi, 2007">06</button></li>
+            <li><button type="button" class="teca" data-titolo="Ghiaccio" data-nota="Testo e regia; con il Teatro della Tosse, 2002; oltre 500 repliche">07</button></li>
+            <li><button type="button" class="teca" data-titolo="Aspettando Godot" data-nota="Beckett, con il Teatro Litta, 2004; più di 7000 spettatori">08</button></li>
+            <li><button type="button" class="teca" data-titolo="Antonio e Cleopatra" data-nota="Shakespeare, 2004">09</button></li>
+            <li><button type="button" class="teca" data-senza-foto data-titolo="A restare chiusa mi sento morire" data-nota="La partigiana Marcellina Oriani; con l'ANPI, 2006">10</button></li>
+            <li><button type="button" class="teca" data-senza-foto data-titolo="E come potevamo noi cantare" data-nota="Recital concerto con i Trenincorsa, 2007">11</button></li>
+            <li><button type="button" class="teca" data-titolo="The Soft Transition" data-nota="Con Musicamorfosi, Fondazione Cariplo, Regione Lombardia, 2010">12</button></li>
+            <li><button type="button" class="teca" data-titolo="Il Nulla — The Void" data-nota="Con Musicamorfosi; Regione Lombardia – Progetto Next, 2011">13</button></li>
+            <li><button type="button" class="teca" data-titolo="Pink in Blues" data-nota="Testo e regia; con Manager Italia, Teatro Nuovo di Milano">14</button></li>
+            <li><button type="button" class="teca" data-titolo="Banvard's Legacy" data-nota="Di e con Massimiliano Cividati, al pianoforte Andrea Zani">15</button></li>
+            <li><button type="button" class="teca" data-titolo="Quattro tiri di corda" data-nota="Drammaturgia originale, alla chitarra Alberto Nazzareno Turra">16</button></li>
+            <li><button type="button" class="teca" data-titolo="Naturalia" data-nota="Reading di parole, sport, jazz e blues, con i Trenincorsa">17</button></li>
+            <li><button type="button" class="teca" data-titolo="Petites Choses" data-nota="Con il Petit Théâtre de Grenoble">18</button></li>
+            <li><button type="button" class="teca" data-titolo="Short Skin" data-nota="Con il Petit Théâtre de Grenoble e il Teatro Out Off">19</button></li>
+            <li><button type="button" class="teca" data-titolo="Sulla pelle" data-nota="Con il Teatro Out Off di Milano">20</button></li>
+            <li><button type="button" class="teca" data-titolo="Al Cielo" data-nota="Residenza Torre dell'Acquedotto, 2020">21</button></li>
+            <li><button type="button" class="teca" data-titolo="Solo due passi" data-nota="Teatro ragazzi, con CBM Italia, 2022">22</button></li>
+          </ol>
+          <!-- Anteprima ingrandita al passaggio del mouse (solo con mouse) -->
+          <figure class="teca-zoom" aria-hidden="true"><img alt=""></figure>
+          </div>
+
+          <div class="teca-dettaglio" aria-live="polite">
+            <h3>Scegli una teca</h3>
+            <p>Ogni numero è uno spettacolo.</p>
+          </div>
+        </section>
+
+        <!-- 4 · FORMAZIONE: luce a destra -->
+        <div class="beam" data-zone="formazione" aria-hidden="true"></div>
+        <div class="pool" data-zone="formazione" aria-hidden="true"></div>
+        <div class="spike" data-zone="formazione" aria-hidden="true"></div>
+        <section class="copy" id="formazione" data-zone="formazione" aria-labelledby="h-formazione">
+          <p class="eyebrow">Formazione</p>
+          <h2 id="h-formazione">Corsi e Laboratori</h2>
+          <ul class="corsi">
+            <li><h3>Adulti</h3><p>Laboratorio di teatro</p></li>
+            <li><h3>Ragazzi</h3><p>Teatro per ragazzi</p></li>
+            <li><h3>Intensivi</h3><p>Masterclass</p></li>
+          </ul>
+          <a class="ghost" href="#contatti" data-go="contatti">[ INFO E ISCRIZIONI ]</a>
+        </section>
+
+        <!-- 4 · CONTATTI: luce al centro, più vicina -->
+        <div class="beam" data-zone="contatti" aria-hidden="true"></div>
+        <div class="pool" data-zone="contatti" aria-hidden="true"></div>
+        <div class="spike" data-zone="contatti" aria-hidden="true"></div>
+        <section class="copy" id="contatti" data-zone="contatti" aria-labelledby="h-contatti">
+          <p class="eyebrow">Contatti</p>
+          <h2 id="h-contatti">Vieni a trovarci</h2>
+          <address>
+            <p><a href="https://www.openstreetmap.org/search?query=Viale%20Luigi%20Buffoli%2017%20bis%2C%2020095%20Cusano%20Milanino" target="_blank" rel="noopener">Viale Luigi Buffoli, 17 bis<br>20095 Cusano Milanino (MI)</a></p>
+            <p><a href="mailto:aiataumastica@gmail.com">aiataumastica@gmail.com</a></p>
+            <p><a href="tel:+390289071170">02 8907 1170</a></p>
+          </address>
+
+          <!-- Poche notizie, solo quando c'è qualcosa da dire -->
+          <form class="iscrizione" name="aggiornamenti" method="POST" data-netlify="true" netlify-honeypot="bot-field" aria-label="Iscrizione agli aggiornamenti">
+            <input type="hidden" name="form-name" value="aggiornamenti">
+            <p class="hp" hidden><label>Non compilare: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+            <p class="iscrizione-testo">Poche notizie, solo quando c'è qualcosa da dire.</p>
+            <div class="iscrizione-riga">
+              <input type="email" name="email" placeholder="La tua email" autocomplete="email" aria-label="La tua email" required>
+              <button type="submit">[ ISCRIVITI ]</button>
+            </div>
+            <label class="consent consent--mini">
+              <input type="checkbox" name="consenso" value="Sì" required>
+              <span>Acconsento a ricevere gli aggiornamenti.</span>
+            </label>
+            <p class="form-status" role="status" aria-live="polite"></p>
+          </form>
+
+          <button type="button" class="link-privacy" data-open-privacy>Informativa privacy</button>
+        </section>
+
+        <!-- La platea: i posti visti dall'alto + il form di prenotazione -->
+        <div id="platea">
+
+          <!-- Netlify Forms: il form è rilevato al deploy; l'invio avviene via fetch (main.js) -->
+          <form class="prenota-form" id="prenota" name="prenotazione" method="POST"
+                data-netlify="true" netlify-honeypot="bot-field" aria-labelledby="h-prenota">
+            <input type="hidden" name="form-name" value="prenotazione">
+            <p class="hp" hidden><label>Non compilare: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+
+            <h2 id="h-prenota">Prenota</h2>
+
+            <div class="field">
+              <label for="spettacolo">Scegli Spettacolo</label>
+              <!-- Le voci si compilano da sole dalle locandine (main.js) -->
+              <select id="spettacolo" name="spettacolo" required>
+                <option value="" disabled selected>—</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="nome">Nome e Cognome</label>
+              <input id="nome" name="nome" type="text" autocomplete="name" required>
+            </div>
+
+            <div class="field">
+              <label for="posti">Numero Posti</label>
+              <input id="posti" name="posti" type="number" inputmode="numeric" min="1" step="1" required>
+              <!-- Un puntino per ogni posto richiesto -->
+              <span class="posti-dots" aria-hidden="true"></span>
+            </div>
+
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" autocomplete="email" required>
+            </div>
+
+            <label class="consent">
+              <input type="checkbox" name="consenso" value="Sì" required>
+              <span>Acconsento al trattamento dei dati per la gestione della prenotazione.</span>
+            </label>
+            <button type="button" class="link-privacy" data-open-privacy>Leggi l'Informativa</button>
+
+            <button type="submit" class="ghost">[ INVIA LA PRENOTAZIONE ]</button>
+            <p class="form-status" role="status" aria-live="polite"></p>
+
+            <!-- Al posto del form dopo l'invio riuscito -->
+            <div class="form-thanks" hidden tabindex="-1">
+              <h2>Grazie</h2>
+              <p>Abbiamo ricevuto la tua richiesta di prenotazione.<br>A presto a teatro.</p>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Nel buio: oggetti disegnati con una sola linea, visibili solo dove passa il faro -->
+    <div class="secrets" aria-hidden="true">
+      <svg class="secret" data-x="26" data-y="76" viewBox="0 0 48 48"><path d="M14 6V42M14 26H36M36 26V42M14 6H21"/></svg>
+      <svg class="secret" data-x="76" data-y="82" viewBox="0 0 48 48"><circle cx="13" cy="24" r="7"/><path d="M20 24H43M37 24V32M43 24V30"/></svg>
+      <svg class="secret" data-x="38" data-y="90" viewBox="0 0 48 48"><path d="M8 10H40V24C40 34 33 41 24 41S8 34 8 24Z"/><path d="M14 21Q18 25 22 21M26 21Q30 25 34 21M17 31Q24 37 31 31"/></svg>
+      <svg class="secret" data-x="66" data-y="70" viewBox="0 0 48 48"><path d="M16 4V44M32 4V44M16 12H32M16 22H32M16 32H32M16 42H32"/></svg>
+    </div>
+    <div class="follow-spot" aria-hidden="true"></div>
+
+    <!-- Pulviscolo: particelle in 3D proiettate sul canvas con la stessa prospettiva -->
+    <canvas id="dust" aria-hidden="true"></canvas>
+
+    <!-- Tende: in primo piano, si aprono avvicinandosi -->
+    <div class="curtain curtain--l" aria-hidden="true"></div>
+    <div class="curtain curtain--r" aria-hidden="true"></div>
+
+    <!-- Apertura: il logo, mentre il teatro è spento e in attesa -->
+    <div class="hero">
+      <h1><img class="hero-logo" src="logo.png" alt="Aia Taumastica" width="1689" height="199"></h1>
+      <p>Compagnia teatrale dal 1998</p>
+      <p class="spot-hint" aria-hidden="true"></p>
+    </div>
+  </div>
+
+  <!-- Sipario: si chiude, si cambia luce, si riapre (usato dai collegamenti) -->
+  <div class="sipario" aria-hidden="true"><i class="sipario-l"></i><i class="sipario-r"></i></div>
+
+  <p class="scroll-hint" aria-hidden="true">Scorri</p>
+
+  <!-- Un segreto: la luce fantasma, se la tocchi, spegne il teatro per un attimo -->
+  <button type="button" class="ghost-hit" tabindex="-1" aria-hidden="true"></button>
+
+  <!-- Informativa privacy: a tutto schermo, Esc o [ CHIUDI ] per uscire -->
+  <dialog id="privacy" class="privacy" aria-labelledby="h-privacy">
+    <h2 id="h-privacy">Privacy e cookie</h2>
+
+    <!--
+      BOZZA da far rivedere a chi cura la privacy prima della pubblicazione.
+      Adattata dall'informativa del sito di Massimiliano Cividati: da confermare
+      il titolare del trattamento, i tempi di conservazione, il fornitore dell'hosting e
+      il servizio che riceve i moduli (da indicare nell'informativa una volta scelto).
+    -->
+    <div class="privacy-testo" tabindex="0">
+      <p>Informativa ai sensi degli articoli 13 e 14 del Regolamento (UE) 2016/679 (GDPR).</p>
+
+      <h3>Titolare del trattamento</h3>
+      <p>Associazione Culturale I Carpentieri di Bell, Via Regina Margherita 1, 20092 Cinisello Balsamo (MI), per la compagnia Aia Taumastica. Per qualsiasi richiesta sui tuoi dati: <a href="mailto:aiataumastica@gmail.com">aiataumastica@gmail.com</a>.</p>
+
+      <h3>Quali dati raccogliamo</h3>
+      <p><strong>Navigazione.</strong> Questo sito non usa cookie di profilazione né strumenti di statistica o di pubblicità, e non traccia i visitatori. Non carica font, script o altri contenuti da server esterni. Il fornitore che ospita il sito può registrare, come ogni server web, dati tecnici di accesso (indirizzo IP, data e ora, pagina richiesta) per ragioni di sicurezza e funzionamento, per il tempo strettamente necessario, in qualità di responsabile del trattamento.</p>
+      <p><strong>Prenotazioni.</strong> Se prenoti dei posti compili nome e cognome, indirizzo email, numero di posti e spettacolo scelto. Usiamo questi dati solo per gestire la tua prenotazione e per risponderti, e li conserviamo per il tempo necessario a questo scopo, poi li cancelliamo. Base giuridica: la tua richiesta (art. 6, par. 1, lett. b GDPR).</p>
+      <p><strong>Aggiornamenti.</strong> Se chiedi di ricevere gli aggiornamenti su spettacoli e laboratori, conserviamo il tuo indirizzo email per inviarti comunicazioni di questo tipo. Base giuridica: il tuo consenso (art. 6, par. 1, lett. a GDPR), che puoi revocare in qualsiasi momento scrivendo «cancellami». I dati sono conservati finché resti iscritto e non sono ceduti a terzi.</p>
+      <p><strong>Contatti.</strong> Se ci scrivi o ci telefoni, usiamo i dati che ci invii (nome, indirizzo email o numero di telefono, contenuto del messaggio) solo per risponderti. Base giuridica: la tua richiesta (art. 6, par. 1, lett. b GDPR).</p>
+
+      <h3>Dove sono trattati i dati</h3>
+      <p>I dati sono trattati in Italia e nell'Unione Europea. I servizi usati per ricevere i moduli del sito (prenotazioni e aggiornamenti) e per rispondere via email (Google Gmail) possono trasferire dati fuori dall'Unione Europea, sulla base delle garanzie previste dal GDPR (decisione di adeguatezza UE-USA, clausole contrattuali standard).</p>
+
+      <h3>Immagini e persone ritratte</h3>
+      <p>Le fotografie documentano spettacoli, laboratori e attività pubbliche. Se sei ritratto in una foto e desideri che venga rimossa, o se sei il genitore di un minore ritratto, scrivi all'indirizzo sopra: la foto verrà tolta senza bisogno di motivazioni.</p>
+
+      <h3>Contenuti di terze parti</h3>
+      <p>Il sito non incorpora video, mappe o altri contenuti di terze parti. Il collegamento all'indirizzo nella sezione Contatti apre la mappa di OpenStreetMap, e i collegamenti email e telefono aprono le tue applicazioni: questo accade solo se li scegli, e quei servizi hanno le proprie regole.</p>
+
+      <h3>I tuoi diritti</h3>
+      <p>Puoi chiedere in ogni momento di accedere ai tuoi dati, di correggerli, cancellarli, limitarne il trattamento, opporti o riceverli in un formato leggibile (articoli 15–22 GDPR), scrivendo all'indirizzo sopra. Puoi anche presentare reclamo al Garante per la protezione dei dati personali (garanteprivacy.it).</p>
+
+      <h3>Cookie</h3>
+      <p>Il sito non installa cookie e non salva nulla sul tuo dispositivo. Per questo non trovi un banner dei cookie: non c'è nulla da accettare.</p>
+
+      <p class="privacy-data">Ultimo aggiornamento: 10 novembre 2026 (bozza).</p>
+    </div>
+
+    <button type="button" class="ghost" data-close-privacy>[ CHIUDI ]</button>
+  </dialog>
+
+  <!-- Repertorio a tutto schermo: la foto grande, con didascalia. Frecce, swipe, Esc. -->
+  <dialog id="lightbox" class="lightbox" aria-labelledby="lb-titolo">
+    <button type="button" class="lb-close ghost" data-lb="close">[ CHIUDI ]</button>
+    <figure class="lb-figure">
+      <img class="lb-img" alt="">
+      <figcaption>
+        <p class="lb-num"></p>
+        <h2 id="lb-titolo"></h2>
+        <p class="lb-nota"></p>
+      </figcaption>
+    </figure>
+    <div class="lb-nav">
+      <button type="button" class="lb-arrow" data-lb="prev" aria-label="Produzione precedente">&larr;</button>
+      <span class="lb-count" aria-live="polite"></span>
+      <button type="button" class="lb-arrow" data-lb="next" aria-label="Produzione successiva">&rarr;</button>
+    </div>
+  </dialog>
+
+  <!-- GSAP 3.12.5 in locale (nessuna richiesta a server esterni). CSSPlugin è incluso in gsap.min.js. -->
+  <script src="lib/gsap.min.js"></script>
+
+  <script src="main.js"></script>
+</body>
+</html>
